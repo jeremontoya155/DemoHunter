@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herramienta de Mensajes Directos</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+    .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    textarea { min-height: 100px; }
+    button { background: #3897f0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #287abd; }
+    .note { font-size: 0.9em; color: #666; margin-top: 5px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Herramienta de Mensajes Directos</h1>
+    <p>Envía mensajes personalizados a múltiples cuentas de Instagram de forma segura.</p>
+    
+    <form action="/send" method="POST">
+      <div class="form-group">
+        <label for="sessionid">Session ID de Instagram:</label>
+        <input type="text" id="sessionid" name="sessionid" required>
+        <p class="note">Cómo obtener tu Session ID: Abre Instagram en Chrome, presiona F12 > Application > Cookies > https://www.instagram.com. Busca "sessionid" y copia su valor.</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="users">Cuentas de destino (1 por línea, máximo 10):</label>
+        <textarea id="users" name="users" required></textarea>
+        <p class="note">Ejemplo: usuario1<br>usuario2<br>usuario3</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Mensaje a enviar:</label>
+        <textarea id="message" name="message" required><%= defaultMessage %></textarea>
+      </div>
+      
+      <button type="submit">Enviar Mensajes</button>
+    </form>
+  </div>
+</body>
+</html>
