@@ -15,6 +15,11 @@
     button:hover { background: #287abd; }
     .note { font-size: 0.9em; color: #666; margin-top: 5px; }
     .error { color: red; }
+    .tabs { display: flex; margin-bottom: 15px; }
+    .tab { padding: 10px 20px; cursor: pointer; background: #ddd; margin-right: 5px; }
+    .tab.active { background: #3897f0; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
   </style>
 </head>
 <body>
@@ -30,18 +35,49 @@
       </div>
       
       <div class="form-group">
-        <label for="users">Cuentas de destino (1 por línea, máximo 10):</label>
+        <label for="users">Cuentas de destino (1 por línea, máximo 50):</label>
         <textarea id="users" name="users" required></textarea>
         <p class="note">Ejemplo: usuario1<br>usuario2<br>usuario3</p>
       </div>
       
-      <div class="form-group">
-        <label for="message">Mensaje a enviar:</label>
-        <textarea id="message" name="message" required><%= defaultMessage %></textarea>
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('single')">Mensaje único</div>
+        <div class="tab" onclick="switchTab('variations')">Variaciones</div>
+      </div>
+      
+      <div id="single-tab" class="tab-content active">
+        <div class="form-group">
+          <label for="message">Mensaje a enviar:</label>
+          <textarea id="message" name="message"><%= defaultMessage %></textarea>
+        </div>
+      </div>
+      
+      <div id="variations-tab" class="tab-content">
+        <div class="form-group">
+          <label for="messages_variations">Variaciones de mensaje (1 por línea):</label>
+          <textarea id="messages_variations" name="messages_variations"><%= defaultMessagesVariations %></textarea>
+          <p class="note">Formato: Variación 1: Texto del mensaje<br>Variación 2: Otro texto<br>Variación 3: Más texto</p>
+        </div>
       </div>
       
       <button type="submit">Enviar Mensajes</button>
     </form>
   </div>
+
+  <script>
+    function switchTab(tabName) {
+      // Cambiar pestañas activas
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Activar la pestaña seleccionada
+      document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+      document.getElementById(`${tabName}-tab`).classList.add('active');
+    }
+  </script>
 </body>
 </html>

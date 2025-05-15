@@ -18,17 +18,30 @@ app.use(express.static('public'));
 // Ruta principal
 app.get('/', (req, res) => {
   res.render('index', { 
-    defaultMessage: "¡Hola! ¿Estás disponible para una conversación rápida?" 
+    defaultMessage: "¡Hola! ¿Estás disponible para una conversación rápida?",
+    defaultMessagesVariations: `Variación 1: ¡Hola! ¿Cómo estás?\nVariación 2: Hola, ¿tienes un momento?\nVariación 3: Buen día, ¿podemos hablar?`
   });
 });
 
+// Función para obtener un mensaje aleatorio de las variaciones
+function getRandomMessage(messagesText) {
+  const variations = messagesText.split('\n')
+    .map(msg => msg.trim())
+    .filter(msg => msg.length > 0 && msg.includes('Variación'));
+  
+  if (variations.length === 0) return messagesText.split('\n')[0] || messagesText;
+  
+  const randomIndex = Math.floor(Math.random() * variations.length);
+  return variations[randomIndex].replace(/^Variación \d+: /, '');
+}
+
 // Ruta para enviar mensajes
 app.post('/send', async (req, res) => {
-  const { sessionid, users, message } = req.body;
+  const { sessionid, users, message, messages_variations } = req.body;
   const userAgent = req.get('User-Agent');
   
   // Validaciones básicas
-  if (!sessionid || !users || !message) {
+  if (!sessionid || !users || (!message && !messages_variations)) {
     return res.status(400).send('Faltan campos requeridos');
   }
 
@@ -36,8 +49,8 @@ app.post('/send', async (req, res) => {
     .map(user => user.trim().replace('@', ''))
     .filter(user => user.length > 0 && user !== '');
 
-  if (targetAccounts.length === 0 || targetAccounts.length > 10) {
-    return res.status(400).send('Debes ingresar entre 1 y 10 cuentas');
+  if (targetAccounts.length === 0 || targetAccounts.length > 50) {
+    return res.status(400).send('Debes ingresar entre 1 y 50 cuentas');
   }
 
   // Crear instancia única para este usuario
@@ -62,17 +75,43 @@ app.post('/send', async (req, res) => {
     const results = [];
 
     // Procesar cada cuenta
-    for (const user of targetAccounts) {
+    for (const [index, user] of targetAccounts.entries()) {
       try {
         const userId = await ig.user.getIdByUsername(user);
-        await ig.entity.directThread([userId]).broadcastText(message);
-        results.push({ user, status: 'success', message: 'Mensaje enviado' });
         
-        // Delay aleatorio entre 30-90 segundos
-        const delayTime = 30000 + Math.random() * 60000;
-        await new Promise(resolve => setTimeout(resolve, delayTime));
+        // Seleccionar mensaje (aleatorio si hay variaciones)
+        const finalMessage = messages_variations ? 
+          getRandomMessage(messages_variations) : 
+          message;
+        
+        await ig.entity.directThread([userId]).broadcastText(finalMessage);
+        results.push({ 
+          user, 
+          status: 'success', 
+          message: 'Mensaje enviado',
+          sentMessage: finalMessage
+        });
+        
+        // Delay progresivo más largo para cuentas posteriores
+        const baseDelay = 60000; // 1 minuto base
+        const progressiveDelay = index * 30000; // 30 segundos adicionales por cuenta
+        const randomDelay = Math.random() * 60000; // hasta 1 minuto aleatorio
+        
+        const totalDelay = baseDelay + progressiveDelay + randomDelay;
+        
+        console.log(`Enviado a ${user}. Esperando ${Math.round(totalDelay/1000)} segundos...`);
+        await new Promise(resolve => setTimeout(resolve, totalDelay));
+        
       } catch (error) {
-        results.push({ user, status: 'error', message: error.message });
+        results.push({ 
+          user, 
+          status: 'error', 
+          message: error.message,
+          sentMessage: ''
+        });
+        
+        // Delay de seguridad incluso en errores
+        await new Promise(resolve => setTimeout(resolve, 30000));
       }
     }
 
