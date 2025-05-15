@@ -3,23 +3,205 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Herramienta de Mensajes Directos</title>
+  <title>Herramienta de Mensajes Directos - Dark Mode</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-    .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-    textarea { min-height: 100px; }
-    button { background: #3897f0; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #287abd; }
-    .note { font-size: 0.9em; color: #666; margin-top: 5px; }
-    .error { color: red; }
-    .tabs { display: flex; margin-bottom: 15px; }
-    .tab { padding: 10px 20px; cursor: pointer; background: #ddd; margin-right: 5px; }
-    .tab.active { background: #3897f0; color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    /* Global Styles & Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-color: #1e1e2d; /* Dark background */
+      --surface-color: #27293d; /* Slightly lighter for containers */
+      --primary-text-color: #e0e0e0; /* Light text */
+      --secondary-text-color: #a0a0b0; /* Muted text */
+      --accent-color: #00bfa5; /* Teal/Green accent */
+      --accent-hover-color: #009688; /* Darker teal for hover */
+      --input-bg-color: #3a3a50; /* Darker for inputs */
+      --border-color: #4a4a60; /* Borders for inputs */
+      --border-radius: 6px;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-color);
+      color: var(--primary-text-color);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      background: var(--surface-color);
+      padding: 30px;
+      border-radius: var(--border-radius);
+      max-width: 800px;
+      margin: 20px auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 {
+      color: var(--accent-color);
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    
+    .container > p:first-of-type {
+        text-align: center;
+        color: var(--secondary-text-color);
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--primary-text-color);
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius);
+      background-color: var(--input-bg-color);
+      color: var(--primary-text-color);
+      font-family: var(--font-family);
+      font-size: 1rem;
+      box-sizing: border-box; /* Important for width: 100% */
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--accent-color);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0, 191, 165, 0.3);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    button[type="submit"] {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: background-color 0.3s ease;
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    button[type="submit"]:hover {
+      background: var(--accent-hover-color);
+    }
+
+    .note {
+      font-size: 0.85em;
+      color: var(--secondary-text-color);
+      margin-top: 8px;
+      display: block; /* Make it block for consistent margin */
+    }
+    .note br {
+        margin-bottom: 4px; /* Add space after line breaks in notes */
+    }
+
+    .error {
+      color: #f44336; /* Red for errors */
+      font-size: 0.9em;
+    }
+
+    /* Tabs Styling */
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--secondary-text-color);
+      margin-right: 5px;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-weight: 500;
+      position: relative;
+      bottom: -1px; /* To make active tab border align with container border */
+    }
+
+    .tab:hover {
+      color: var(--primary-text-color);
+    }
+
+    .tab.active {
+      background: var(--surface-color); /* Same as container for seamless look */
+      color: var(--accent-color);
+      border: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--surface-color); /* Hides bottom border to blend */
+      font-weight: 600;
+    }
+
+    .tab-content {
+      display: none;
+      padding-top: 20px; /* Space between tab content and tabs */
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Proxy Info Box */
+    .proxy-info {
+      background: var(--input-bg-color); /* Slightly different dark shade */
+      padding: 15px;
+      border-radius: var(--border-radius);
+      margin-bottom: 25px;
+      border: 1px solid var(--border-color);
+    }
+
+    .proxy-info h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: var(--primary-text-color);
+      font-weight: 600;
+    }
+    .proxy-info p {
+        margin-bottom: 0;
+        color: var(--secondary-text-color);
+    }
+
+    /* Scrollbar styling (optional, but nice for dark themes) */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--input-bg-color);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-color);
+    }
+
   </style>
 </head>
 <body>
@@ -27,17 +209,30 @@
     <h1>Herramienta de Mensajes Directos</h1>
     <p>Envía mensajes personalizados a múltiples cuentas de Instagram de forma segura.</p>
     
+    <div class="proxy-info">
+      <h3>Configuración de Proxies</h3>
+      <p>Los proxies se rotarán automáticamente cada 5 cuentas procesadas.</p>
+    </div>
+    
     <form action="/send" method="POST">
       <div class="form-group">
         <label for="sessionid">Session ID de Instagram:</label>
-        <input type="text" id="sessionid" name="sessionid" required>
+        <input type="text" id="sessionid" name="sessionid" required placeholder="Pega tu Session ID aquí">
         <p class="note">Cómo obtener tu Session ID: Abre Instagram en Chrome, presiona F12 > Application > Cookies > https://www.instagram.com. Busca "sessionid" y copia su valor.</p>
       </div>
       
       <div class="form-group">
         <label for="users">Cuentas de destino (1 por línea, máximo 50):</label>
-        <textarea id="users" name="users" required></textarea>
+        <textarea id="users" name="users" required placeholder="usuario1
+usuario2
+usuario3"></textarea>
         <p class="note">Ejemplo: usuario1<br>usuario2<br>usuario3</p>
+      </div>
+      
+      <div class="form-group">
+        <label for="proxies">Lista de Proxies SOCKS5 (1 por línea):</label>
+        <textarea id="proxies" name="proxies" placeholder="socks5://usuario:contraseña@ip:puerto"><%= proxyList %></textarea>
+        <p class="note">Formato: socks5://usuario:contraseña@ip:puerto<br>Se rotarán automáticamente cada 5 cuentas</p>
       </div>
       
       <div class="tabs">
@@ -48,14 +243,15 @@
       <div id="single-tab" class="tab-content active">
         <div class="form-group">
           <label for="message">Mensaje a enviar:</label>
-          <textarea id="message" name="message"><%= defaultMessage %></textarea>
+          <textarea id="message" name="message" placeholder="Escribe tu mensaje aquí"><%= defaultMessage %></textarea>
         </div>
       </div>
       
       <div id="variations-tab" class="tab-content">
         <div class="form-group">
           <label for="messages_variations">Variaciones de mensaje (1 por línea):</label>
-          <textarea id="messages_variations" name="messages_variations"><%= defaultMessagesVariations %></textarea>
+          <textarea id="messages_variations" name="messages_variations" placeholder="Variación 1: Texto del mensaje
+Variación 2: Otro texto del mensaje"><%= defaultMessagesVariations %></textarea>
           <p class="note">Formato: Variación 1: Texto del mensaje<br>Variación 2: Otro texto<br>Variación 3: Más texto</p>
         </div>
       </div>
